@@ -1,0 +1,10 @@
+## Author: ksh567
+version = 0.1
+[default]
+[default.global.parameters]
+profile="hometowndev"
+parallel="true"
+region="ap-northeast-2"
+[default.local.invoke]
+[default.local.invoke.parameters]
+profile="hometowndev"
