@@ -12,8 +12,8 @@ import (
 
 var (
 	_ = godotenv.Load()
-	SlaveDatabase = DbConnecttion("slave")
-	MasterDatabase = DbConnecttion("master")
+	SlaveDatabase = DbConnecttion("SLAVE")
+	MasterDatabase = DbConnecttion("MASTER")
 )
 type DbConfig struct {
 	MaxLifetime time.Duration
@@ -40,9 +40,9 @@ var masterConfig *DbConfig = &DbConfig{
 func DbConnecttion(env string) *sqlx.DB {
 	var config *DbConfig
 	switch env {
-	case "slave":
+	case "SLAVE":
 		config = slaveConfig
-	case "master":
+	case "MASTER":
 		config = masterConfig
 	default:
 		config = slaveConfig
