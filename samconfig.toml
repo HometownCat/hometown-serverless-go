@@ -2,9 +2,30 @@
 version = 0.1
 [default]
 [default.global.parameters]
-profile="hometowndev"
+stack_name="hometown-serverless"
+# profile="hometowndev"
 parallel="true"
 region="ap-northeast-2"
+s3_bucket = "hometown-serverless-dep-dev"
+s3_prefix = "artifacts"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+
 [default.local.invoke]
 [default.local.invoke.parameters]
+# profile="hometowndev"
+
+[hometown]
+[hometown.global.parameters]
+stack_name="hometown-serverless"
+# profile="hometowndev"
+parallel="true"
+region="ap-northeast-2"
+s3_bucket = "hometown-serverless-dep-dev"
+s3_prefix = "artifacts"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+
+[hometown.local.invoke]
+[hometown.local.invoke.parameters]
 profile="hometowndev"
