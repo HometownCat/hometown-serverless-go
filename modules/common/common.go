@@ -10,18 +10,18 @@ func IsError(err error) bool {
 	return err != nil
 }
 
-func ResponseError(err error) (events.APIGatewayProxyResponse, error){
+func ResponseError(err error) (*events.APIGatewayProxyResponse, *error){
 	errBin, err := json.Marshal(err)
 
 	if err != nil {
-		return events.APIGatewayProxyResponse{
+		return &events.APIGatewayProxyResponse{
 			Body: "json parsing error",
 			StatusCode: 400,
-		},err
+		},&err
 	}
 
-	return events.APIGatewayProxyResponse{
+	return &events.APIGatewayProxyResponse{
 		Body: string(errBin),
 		StatusCode: 400,
-	},err
+	},&err
 }

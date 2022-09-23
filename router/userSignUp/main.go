@@ -16,7 +16,8 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 	bin,err := json.Marshal(&token)
 
 	if err != nil {
-		return common.ResponseError(err)
+		response, err := common.ResponseError(err)
+		return *response,*err
 	}
 
 	return events.APIGatewayProxyResponse{
