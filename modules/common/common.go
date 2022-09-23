@@ -12,7 +12,6 @@ func IsError(err error) bool {
 
 func ResponseError(err error) (*events.APIGatewayProxyResponse, *error){
 	errBin, err := json.Marshal(err)
-
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			Body: "json parsing error",

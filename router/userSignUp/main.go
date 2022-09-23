@@ -12,15 +12,20 @@ import (
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
-	token := controller.UserSignUp()
+	userData, err := controller.UserSignUp(&event)
+	if err != nil {
+		response, err := common.ResponseError(*err)
+		return *response,*err
+	}
+
 	responseData := types.ResponseData{
 		Message: "success",
-		Data: &token,
+		Data: &userData,
 	}
-	bin,err := json.Marshal(&responseData)
+	bin,jsonErr := json.Marshal(&responseData)
 
-	if err != nil {
-		response, err := common.ResponseError(err)
+	if jsonErr != nil {
+		response, err := common.ResponseError(jsonErr)
 		return *response,*err
 	}
 
