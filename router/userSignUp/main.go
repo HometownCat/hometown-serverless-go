@@ -8,12 +8,16 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"hometown.com/hometown-serverless-go/controller"
 	"hometown.com/hometown-serverless-go/modules/common"
+	"hometown.com/hometown-serverless-go/types"
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
 	token := controller.UserSignUp()
-
-	bin,err := json.Marshal(&token)
+	responseData := types.ResponseData{
+		Message: "success",
+		Data: &token,
+	}
+	bin,err := json.Marshal(&responseData)
 
 	if err != nil {
 		response, err := common.ResponseError(err)
