@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -20,7 +21,7 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	// ApiId := apiGatewayArnTmp[0];
 	// stage := apiGatewayArnTmp[1];
 	// route := apiGatewayArnTmp[2];
-	if headers["x-api-key"] != "my-api-key2" {
+	if headers["x-api-key"] != os.Getenv("API_KEY") {
 		return *GenerateDeny("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn) , nil
 	}
 	return *GenerateAllow("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn), nil
