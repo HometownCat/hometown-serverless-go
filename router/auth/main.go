@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -20,21 +20,19 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	// ApiId := apiGatewayArnTmp[0];
 	// stage := apiGatewayArnTmp[1];
 	// route := apiGatewayArnTmp[2];
-
 	if headers["x-api-key"] != "my-api-key" {
-		return GenerateDeny("nspark",event.MethodArn), errors.New("Unauthorized")
+		return *GenerateDeny("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn) , nil
 	}
-	return GenerateAllow("nspark",event.MethodArn), nil
+	return *GenerateAllow("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn), nil
 }
 
-func GeneratePolicy(principalId string, effect string, resource string) events.APIGatewayCustomAuthorizerResponse {
+func GeneratePolicy(principalId string, effect string, resource string) *events.APIGatewayCustomAuthorizerResponse {
 	var AuthResponse events.APIGatewayCustomAuthorizerResponse;
 	AuthResponse.PrincipalID = principalId
 	var PolicyDocument events.APIGatewayCustomAuthorizerPolicy
 
 	PolicyDocument.Version = "2012-10-17"
-	var statement []events.IAMPolicyStatement
-	PolicyDocument.Statement =  statement
+	PolicyDocument.Statement = make([]events.IAMPolicyStatement,1)
 
 	var statementOne events.IAMPolicyStatement
 	statementOne.Action = make([]string, 1)
@@ -45,15 +43,15 @@ func GeneratePolicy(principalId string, effect string, resource string) events.A
 	PolicyDocument.Statement[0] = statementOne
 
 	AuthResponse.PolicyDocument = PolicyDocument
-
-	return AuthResponse
+	fmt.Println(AuthResponse)
+	return &AuthResponse
 }	
 
-func GenerateAllow(principalId string, resource string) events.APIGatewayCustomAuthorizerResponse {
+func GenerateAllow(principalId string, resource string) *events.APIGatewayCustomAuthorizerResponse {
 	return GeneratePolicy(principalId,"Allow",resource)
 }
 
-func GenerateDeny(principalId string, resource string) events.APIGatewayCustomAuthorizerResponse {
+func GenerateDeny(principalId string, resource string) *events.APIGatewayCustomAuthorizerResponse {
 	return GeneratePolicy(principalId,"Deny",resource)
 }
 
