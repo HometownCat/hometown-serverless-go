@@ -4,5 +4,6 @@
 
 ## local test
 ```shell
+sam build
 sam local start-api # local api 실행 후 진행
 ```
