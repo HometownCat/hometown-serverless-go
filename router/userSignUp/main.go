@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -12,6 +13,7 @@ import (
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
+	fmt.Println("here")
 	userData, err := controller.UserSignUp(&event)
 	if err != nil {
 		response, err := common.ResponseError(*err)

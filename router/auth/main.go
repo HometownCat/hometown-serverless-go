@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+var Effect string;
+
 func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.APIGatewayCustomAuthorizerResponse , error){
 	headers := event.Headers;
 	// queryStringParameters := event.QueryStringParameters;
@@ -21,15 +23,16 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	// ApiId := apiGatewayArnTmp[0];
 	// stage := apiGatewayArnTmp[1];
 	// route := apiGatewayArnTmp[2];
+	principalId := os.Getenv("PRINCIPAL_ID")
 	if headers["x-api-key"] != os.Getenv("API_KEY") {
-		return *GenerateDeny("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn) , nil
+		return *GenerateDeny(&principalId,&event.MethodArn) , nil
 	}
-	return *GenerateAllow("arn:aws:iam::452402024371:user/nspark@toptoon.com",event.MethodArn), nil
+	return *GenerateAllow(&principalId,&event.MethodArn), nil
 }
 
-func GeneratePolicy(principalId string, effect string, resource string) *events.APIGatewayCustomAuthorizerResponse {
+func GeneratePolicy(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
 	var AuthResponse events.APIGatewayCustomAuthorizerResponse;
-	AuthResponse.PrincipalID = principalId
+	AuthResponse.PrincipalID = *principalId
 	var PolicyDocument events.APIGatewayCustomAuthorizerPolicy
 
 	PolicyDocument.Version = "2012-10-17"
@@ -37,10 +40,10 @@ func GeneratePolicy(principalId string, effect string, resource string) *events.
 
 	var statementOne events.IAMPolicyStatement
 	statementOne.Action = make([]string, 1)
-	statementOne.Effect = effect
+	statementOne.Effect = Effect
 	statementOne.Resource = make([]string, 1)
 	statementOne.Action[0] = "execute-api:Invoke"
-	statementOne.Resource[0] = resource
+	statementOne.Resource[0] = *resource
 	PolicyDocument.Statement[0] = statementOne
 
 	AuthResponse.PolicyDocument = PolicyDocument
@@ -48,12 +51,14 @@ func GeneratePolicy(principalId string, effect string, resource string) *events.
 	return &AuthResponse
 }	
 
-func GenerateAllow(principalId string, resource string) *events.APIGatewayCustomAuthorizerResponse {
-	return GeneratePolicy(principalId,"Allow",resource)
+func GenerateAllow(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
+	Effect = "Allow"
+	return GeneratePolicy(principalId,resource)
 }
 
-func GenerateDeny(principalId string, resource string) *events.APIGatewayCustomAuthorizerResponse {
-	return GeneratePolicy(principalId,"Deny",resource)
+func GenerateDeny(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
+	Effect = "Deny"
+	return GeneratePolicy(principalId,resource)
 }
 
 func main() {

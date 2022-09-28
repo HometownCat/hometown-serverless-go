@@ -1,28 +1,32 @@
 package manager
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 
-	"golang.org/x/crypto/bcrypt"
 	"hometown.com/hometown-serverless-go/handler"
 	"hometown.com/hometown-serverless-go/types"
 )
 
 
 func UserSignUp(user *types.User) (*types.TokenData, *error) {
-	password,bcryptErr := bcrypt.GenerateFromPassword([]byte(user.Password),4)
-	if bcryptErr != nil {
-		return nil, &bcryptErr
-	}
-	user.Password = string(password)
+	hashPassword := sha256.Sum256([]byte(user.Password))
+	user.Password = hex.EncodeToString(hashPassword[:])
 	err := handler.SignUp(user)
 	if err != nil {
 		return nil, err
 	}
-	token,tokenErr := handler.TokenGenerator(&types.SendUserInfo{
-		Email: user.Email,
-		Name: user.Name,
-	})
+
+	var sendUserInfo types.SendUserInfo
+	userBin,jsonErr := json.Marshal(user)
+	if jsonErr != nil {
+		return nil, err
+	}
+
+	json.Unmarshal(userBin,&sendUserInfo)
+
+	token,tokenErr := handler.TokenGenerator(&sendUserInfo)
 	if tokenErr != nil {
 		return nil, tokenErr
 	}

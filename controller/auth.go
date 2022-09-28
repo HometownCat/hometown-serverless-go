@@ -27,7 +27,7 @@ func UserSignUp(event *events.APIGatewayProxyRequest) (*map[string] interface{},
 	json.Unmarshal(tokenBin,&userData)
 
 	userData["email"] = user.Email
-	userData["name"] = user.Name
+	userData["Username"] = user.Username
 
 
 	// 테스트 데이터
