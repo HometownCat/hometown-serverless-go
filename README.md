@@ -1,6 +1,6 @@
 # woodongking serverless
 
-**테스트 해보고 싶으면 저한테 yml 파일 요청하세요~ (nspark)**
+**테스트 해보고 싶으시면 저한테 yml 파일 요청하세요~ (nspark)**
 
 ## local test
 ```shell
