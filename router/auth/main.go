@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"hometown.com/hometown-serverless-go/modules/database"
 	"hometown.com/hometown-serverless-go/modules/validation"
 )
 
@@ -78,5 +79,9 @@ func GenerateDeny(principalId *string, resource *string) *events.APIGatewayCusto
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	database.MasterDatabase.Close()
+	database.SlaveDatabase.Close()
+
 	lambda.Start(Handler)
 }

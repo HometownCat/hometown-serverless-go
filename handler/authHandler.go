@@ -31,7 +31,6 @@ func SignUp(user *types.User) error {
 		conErr = rowErr
 		user.Id = &id
 	}
-	defer database.MasterDatabase.Close()
 	return conErr
 }
 

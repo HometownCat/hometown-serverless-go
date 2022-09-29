@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"hometown.com/hometown-serverless-go/controller"
 	"hometown.com/hometown-serverless-go/modules/common"
+	"hometown.com/hometown-serverless-go/modules/database"
 	"hometown.com/hometown-serverless-go/types"
 )
 
@@ -37,5 +38,9 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	database.MasterDatabase.Close()
+	database.SlaveDatabase.Close()
+
 	lambda.Start(Handler)
 }

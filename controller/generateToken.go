@@ -21,3 +21,10 @@ func GenerateToken(event *events.APIGatewayProxyRequest) (*types.SendUserInfo, e
 	}
 	return userData,nil
 }
+
+// func Gentoken(event *events.APIGatewayProxyRequest, callback func(error, *types.SendUserInfo)) {
+// 	var reqUser types.LoginUser
+// 	json.Unmarshal([]byte(event.Body),&reqUser)
+// 	userData,err := manager.TokenGenerator(&reqUser.Email, &reqUser.Password)
+// 	callback(err,userData)
+// }
