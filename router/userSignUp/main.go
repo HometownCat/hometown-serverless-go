@@ -13,7 +13,6 @@ import (
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
-	fmt.Println(event.RequestContext.Identity)
 	userData, err := controller.UserSignUp(&event)
 	if err != nil {
 		response, err := common.ResponseError(err)
