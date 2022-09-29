@@ -76,66 +76,9 @@ func TokenGenerator(user *types.SendUserInfo, secretKey *string, avaliableTime *
 	return &signedToken,nil
 }
 
-// func TokenGenerator(user *types.SendUserInfo) (*types.TokenData, error){
-// 	// 토큰 발급 추가
-// 	accessTokenClaims := types.AuthTokenData{
-// 		TokenUUID: uuid.NewString(),
-// 		UserUUID: uuid.NewString(),
-// 		StandardClaims: jwt.StandardClaims{
-// 			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 30)),
-// 		},
-// 	}
-// 	revokeTokenClamis := types.AuthTokenData{
-// 		TokenUUID: uuid.NewString(),
-// 		UserUUID: uuid.NewString(),
-// 		StandardClaims: jwt.StandardClaims{
-// 			ExpiresAt: jwt.At(time.Now().Add(time.Hour * 24 * 30)),
-// 		},
-// 	}
-
-// 	userBin,_ := json.Marshal(*user)
-
-// 	var wg sync.WaitGroup
-
-// 	wg.Add(2)
-
-// 	go func(){
-// 		json.Unmarshal(userBin,&accessTokenClaims)
-// 		defer wg.Done()
-// 	}()
-// 	go func(){
-// 		json.Unmarshal(userBin,&revokeTokenClamis)
-// 		defer wg.Done()
-// 	}()
-
-// 	wg.Wait()
-
-// 	accessToken  := jwt.NewWithClaims(jwt.SigningMethodHS256, &accessTokenClaims)
-// 	revokeToken  := jwt.NewWithClaims(jwt.SigningMethodHS256, &accessTokenClaims)
-
-// 	accessSignedToken,accessErr := accessToken.SignedString([]byte(os.Getenv("JWT_ACCESS_SECRET_KEY")))	
-// 	revokeSignedToken,revokeErr := revokeToken.SignedString([]byte(os.Getenv("JWT_REVOKE_SECRET_KEY")))	
-// 	if accessErr != nil || revokeErr != nil {
-// 		fmt.Println("access :" +accessErr.Error())
-// 		fmt.Println("reovke :" +revokeErr.Error())
-// 		var newErr error
-// 		if accessErr != nil {
-// 			newErr = accessErr
-// 		}else if revokeErr != nil {
-// 			newErr = revokeErr
-// 		}
-// 		return nil, newErr
-// 	}
-
-// 	return &types.TokenData{
-// 		AccessToken: accessSignedToken,
-// 		RevokeToken: revokeSignedToken,
-// 	}, nil
-// }
-
-func TokenParser(token *string, secretKey *string) (*types.AuthTokenData,error){
-	returnData := types.AuthTokenData{}
-
+func TokenParser(token *string, secretKey *string) (*types.SendUserInfo,error){
+	tokenData := types.AuthTokenData{}
+	returnData := types.SendUserInfo{}
 	key := func (token *jwt.Token) (interface{}, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, errors.New("unexpected signing method")
@@ -143,14 +86,18 @@ func TokenParser(token *string, secretKey *string) (*types.AuthTokenData,error){
 		return []byte(*secretKey), nil
 	}
 	
-	tok,err := jwt.ParseWithClaims(*token,&returnData,key)
+	tok,err := jwt.ParseWithClaims(*token,&tokenData,key)
 
 	if err != nil {
 		return nil,err
 	}
-
 	if !tok.Valid {
 		return nil,errors.New("invalid token")
 	}
+
+	dataBin,_ := json.Marshal(tokenData)
+
+	json.Unmarshal(dataBin,&returnData);
+
 	return &returnData,nil
 }

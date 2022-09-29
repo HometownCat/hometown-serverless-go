@@ -17,7 +17,7 @@ capabilities = "CAPABILITY_IAM"
 
 [hometown]
 [hometown.global.parameters]
-stack_name="hometown-serverless"
+stack_name="hometown-serverless-prod"
 # profile="hometowndev"
 parallel="true"
 region="ap-northeast-2"

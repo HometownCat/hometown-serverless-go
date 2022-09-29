@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"os"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"hometown.com/hometown-serverless-go/modules/validation"
 )
 
 var Effect string;
@@ -27,6 +28,21 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	if headers["x-api-key"] != os.Getenv("API_KEY") {
 		return *GenerateDeny(&principalId,&event.MethodArn) , nil
 	}
+
+
+	accessToken := headers["accesstoken"];
+
+	userInfo, validErr := validation.UserValidation(&accessToken)
+	
+
+	if validErr != nil {
+		return *GenerateDeny(&principalId,&event.MethodArn) , nil
+	} else if userInfo != nil {
+		userBin,_ := json.Marshal(*userInfo)
+		// 테스트 진행 필요
+		event.StageVariables["userData"] = string(userBin)
+	}
+
 	return *GenerateAllow(&principalId,&event.MethodArn), nil
 }
 
@@ -47,7 +63,6 @@ func GeneratePolicy(principalId *string, resource *string) *events.APIGatewayCus
 	PolicyDocument.Statement[0] = statementOne
 
 	AuthResponse.PolicyDocument = PolicyDocument
-	fmt.Println(AuthResponse)
 	return &AuthResponse
 }	
 

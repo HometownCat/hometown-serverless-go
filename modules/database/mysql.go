@@ -14,7 +14,7 @@ import (
 
 var (
 	_ = godotenv.Load()
-	// SlaveDatabase = DbConnecttion("SLAVE")
+	SlaveDatabase = DbConnecttion("SLAVE")
 	MasterDatabase = DbConnecttion("MASTER")
 )
 type DbConfig struct {

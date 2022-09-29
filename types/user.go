@@ -27,8 +27,8 @@ type SendUserInfo struct {
 	Address *string `json:"address" db:"address"`
 	PhoneNumber *string `json:"phoneNumber" db:"phoneNumber"`
 	ProfileImage *string `json:"profileImage" db:"profileImage"`
-	AccessToken string `json:"accesstoken"`
-	RevokeToken string `json:"revokeToken"`
+	AccessToken *string `json:"accesstoken"`
+	RevokeToken *string `json:"revokeToken"`
 }
 
 type TokenData struct{
