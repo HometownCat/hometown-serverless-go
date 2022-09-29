@@ -39,8 +39,8 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	database.MasterDatabase.Close()
-	database.SlaveDatabase.Close()
+	defer database.MasterDatabase.Close()
+	defer database.SlaveDatabase.Close()
 
 	lambda.Start(Handler)
 }

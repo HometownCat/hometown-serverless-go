@@ -80,8 +80,8 @@ func GenerateDeny(principalId *string, resource *string) *events.APIGatewayCusto
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	database.MasterDatabase.Close()
-	database.SlaveDatabase.Close()
+	defer database.MasterDatabase.Close()
+	defer database.SlaveDatabase.Close()
 
 	lambda.Start(Handler)
 }
