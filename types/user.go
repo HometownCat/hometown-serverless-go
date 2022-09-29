@@ -19,11 +19,13 @@ type User struct {
 type SendUserInfo struct {
 	Id int64 `json:"id" db:"id"`
 	Email string `json:"email" db:"email"`
-	Username string `json:"name" db:"name"`
+	Username string `json:"username" db:"username"`
 	Password string `json:"password" db:"password"`
 	Address *string `json:"address" db:"address"`
 	PhoneNumber *string `json:"phoneNumber" db:"phoneNumber"`
 	ProfileImage *string `json:"profileImage" db:"profileImage"`
+	AccessToken string `json:"accesstoken"`
+	RevokeToken string `json:"revokeToken"`
 }
 
 type TokenData struct{

@@ -20,7 +20,7 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 
 	if jsonErr != nil {
 		errRes,err := common.ResponseError(jsonErr)
-		return *errRes,*err
+		return *errRes,err
 	}
 
 	return events.APIGatewayProxyResponse{

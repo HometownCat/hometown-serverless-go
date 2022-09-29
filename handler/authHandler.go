@@ -10,9 +10,9 @@ import (
 )
 
 
-func SignUp(user *types.User) *error {
+func SignUp(user *types.User) error {
 	// db 처리 추가
-	strQuery := "INSER INTO `user` SET username = " + user.Username +  ", email = " + user.Email + ", password = " + user.Password + ", userIp = " + user.UserIp +", status = 0"
+	strQuery := "INSERT INTO `user` SET username = \"" + user.Username +  "\", email = \"" + user.Email + "\", password = \"" + user.Password + "\", userIp = \"" + user.UserIp +"\", status = 0"
 	if user.Address != nil {
 		strQuery += ", address = " + *user.Address
 	}
@@ -30,24 +30,32 @@ func SignUp(user *types.User) *error {
 		user.Id = &id
 	}
 	defer database.MasterDatabase.Close()
-	return &conErr
+	return conErr
 }
 
-func GetUser(email *string , password *string) (*types.SendUserInfo, *error){
+func GetUser(email *string , password *string) (*types.SendUserInfo, error){
 	// db 처리 추가
 
+	var sendUserInfo []types.SendUserInfo
+	var passwordFailErr error
+	strQuery := "SELECT id, email, username, address, phoneNumber, profileImage FROM `user` WHERE `email` = \"" + *email + "\""
 
-	if false {
-		passwordFailErr := errors.New("password not matched")
-		return nil, &passwordFailErr
-	} 
-	return &types.SendUserInfo{
-		Email: "test@naver.com",
-		Username: "park",
-	}, nil
+	if password != nil {
+		passwordFailErr = errors.New("password not matched");
+		strQuery += ", `password` = \"" + *password + "\""
+	}
+	conErr := database.MasterDatabase.Select(&sendUserInfo,strQuery)
+	if conErr != nil {
+		return nil,conErr
+	}
+	if len(sendUserInfo) <= 0 {
+		return nil, passwordFailErr
+	}
+	returnUser := sendUserInfo[0]
+	return &returnUser, nil
 } 
 
-func TokenGenerator(user *types.SendUserInfo) (*types.TokenData, *error){
+func TokenGenerator(user *types.SendUserInfo) (*types.TokenData, error){
 	// 토큰 발급 추가
 	var accessToken string
 	var revokeToken string

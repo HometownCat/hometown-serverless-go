@@ -13,22 +13,21 @@ import (
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
-	fmt.Println("here")
+	fmt.Println(event.RequestContext.Identity)
 	userData, err := controller.UserSignUp(&event)
 	if err != nil {
-		response, err := common.ResponseError(*err)
-		return *response,*err
+		response, err := common.ResponseError(err)
+		return *response,err
 	}
-
 	responseData := types.ResponseData{
 		Message: "success",
-		Data: &userData,
+		Data: *userData,
 	}
 	bin,jsonErr := json.Marshal(&responseData)
-
+	fmt.Println(responseData)
 	if jsonErr != nil {
 		response, err := common.ResponseError(jsonErr)
-		return *response,*err
+		return *response,err
 	}
 
 	return events.APIGatewayProxyResponse{
