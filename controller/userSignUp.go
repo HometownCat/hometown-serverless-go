@@ -24,17 +24,3 @@ func UserSignUp(event *events.APIGatewayProxyRequest) (*types.SendUserInfo, erro
 	}
 	return sendUserInfo, nil
 }
-
-func GenerateToken(event *events.APIGatewayProxyRequest) (*map[string] interface{}, error) {
-	var reqUser types.LoginUser
-	jsonErr := json.Unmarshal([]byte(event.Body),&reqUser)
-
-	if jsonErr != nil {
-		return nil, jsonErr
-	}
-	userData,err := manager.TokenGenerator(&reqUser.Email, &reqUser.Password)
-	if err != nil {
-		return nil, err
-	}
-	return userData,nil
-}

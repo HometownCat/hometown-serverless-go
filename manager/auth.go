@@ -46,27 +46,3 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 	}
 	return &sendUserInfo,nil
 }
-
-func TokenGenerator(email *string, password *string) (*map[string] interface{}, error) {
-
-	var userData map[string]interface{}
-
-	userInfo, getUserErr := handler.GetUser(email, password)
-
-	if getUserErr != nil {
-		return nil, getUserErr
-	}
-	token, tokenErr := handler.TokenGenerator(userInfo)
-
-	if tokenErr != nil {
-		return nil, tokenErr
-	}
-
-	userBin, _ := json.Marshal(&userInfo)
-	tokenBin, _ := json.Marshal(&token)
-
-	json.Unmarshal(userBin,&userData)
-	json.Unmarshal(tokenBin,&userData)
-	
-	return &userData,nil
-}

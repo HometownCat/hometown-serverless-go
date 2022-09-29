@@ -1,6 +1,10 @@
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/dgrijalva/jwt-go/v4"
+)
 
 type User struct {
 	Id *int64 `json:"id" db:"id"`
@@ -20,7 +24,6 @@ type SendUserInfo struct {
 	Id int64 `json:"id" db:"id"`
 	Email string `json:"email" db:"email"`
 	Username string `json:"username" db:"username"`
-	Password string `json:"password" db:"password"`
 	Address *string `json:"address" db:"address"`
 	PhoneNumber *string `json:"phoneNumber" db:"phoneNumber"`
 	ProfileImage *string `json:"profileImage" db:"profileImage"`
@@ -36,4 +39,18 @@ type TokenData struct{
 type LoginUser struct {
 	Email string `json:"email"`
 	Password string `json:"password"`
+}
+
+type AuthTokenData struct {
+	TokenUUID string `json:"tid"`
+	UserUUID string `json:"uid"`
+	Id int64 `json:"id" db:"id"`
+	Email string `json:"email" db:"email"`
+	Username string `json:"username" db:"username"`
+	Address *string `json:"address" db:"address"`
+	PhoneNumber *string `json:"phoneNumber" db:"phoneNumber"`
+	ProfileImage *string `json:"profileImage" db:"profileImage"`
+	AccessToken string `json:"accesstoken"`
+	RevokeToken string `json:"revokeToken"`
+	jwt.StandardClaims
 }
