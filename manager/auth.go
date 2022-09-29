@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"sync"
 
 	"hometown.com/hometown-serverless-go/handler"
 	"hometown.com/hometown-serverless-go/types"
@@ -34,15 +35,41 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 	var sendUserInfo types.SendUserInfo
 
 	userBin,jsonErr := json.Marshal(*user)
+	
 	if jsonErr != nil {
 		return nil, err
 	}
+
 	json.Unmarshal(userBin,&sendUserInfo)
-	token,tokenErr := handler.TokenGenerator(&sendUserInfo)
-	sendUserInfo.AccessToken = token.AccessToken
-	sendUserInfo.RevokeToken = token.RevokeToken
+	tokenData := types.TokenData{}
+	var tokenErr error
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+
+	go func(){
+		accessToken, accessErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
+		tokenData.AccessToken = *accessToken
+		if accessErr != nil {
+			tokenErr = accessErr
+		}
+		defer wg.Done()
+	}()
+	
+	go func(){
+		revokeToken, revokeErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
+		tokenData.RevokeToken = *revokeToken
+		if revokeErr != nil {
+			tokenErr = revokeErr
+		}
+		defer wg.Done()
+	}()
+
+	wg.Wait()
+	
 	if tokenErr != nil {
 		return nil, tokenErr
 	}
+
 	return &sendUserInfo,nil
 }

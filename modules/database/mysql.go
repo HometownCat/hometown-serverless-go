@@ -29,7 +29,6 @@ var slaveConfig *DbConfig = &DbConfig{
 	MaxIdletime: time.Minute,
 	MaxOpenConn: 60,
 	MaxIdleConn: 60,
-
 }
 
 var masterConfig *DbConfig = &DbConfig{
