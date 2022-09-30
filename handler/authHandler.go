@@ -64,7 +64,7 @@ func GetUser(email *string, password *string) (*types.SendUserInfo, error) {
 func SetUserToken(accessToken *string, revokeToken *string, id *int64) error {
 	strQuery := "INSERT INTO `" +
 		tables["userToken"] +
-		"` SET id = ?, accessToken = ?, revokeToken = ?" +
+		"` SET userId = ?, accessToken = ?, revokeToken = ?" +
 		" ON DUPLICATE KEY UPDATE accessToken = ?, revokeToken = ?"
 
 	_, conErr := database.MasterDatabase.Exec(
@@ -110,28 +110,36 @@ func TokenGenerator(user *types.SendUserInfo, secretKey *string, avaliableTime *
 	return &signedToken, nil
 }
 
-func TokenParser(token *string, secretKey *string) (*types.SendUserInfo, error) {
-	tokenData := types.AuthTokenData{}
+func TokenParser(token *string) (*types.SendUserInfo, error) {
+	// tokenData := types.AuthTokenData{}
 	returnData := types.SendUserInfo{}
-	key := func(token *jwt.Token) (interface{}, error) {
-		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
-			return nil, errors.New("unexpected signing method")
-		}
-		return []byte(*secretKey), nil
+	// key := func(token *jwt.Token) (interface{}, error) {
+	// 	if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
+	// 		return nil, errors.New("unexpected signing method")
+	// 	}
+	// 	return []byte(*secretKey), nil
+	// }
+
+	// tok, err := jwt.ParseWithClaims(*token, &tokenData, key)
+
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if !tok.Valid {
+	// 	return nil, errors.New("invalid token")
+	// }
+
+	// dataBin, _ := json.Marshal(tokenData)
+
+	redisType := "string"
+
+	userData, getErr := redis.GetData(token, &redisType)
+
+	userStr := fmt.Sprintf("%v", *userData)
+
+	if getErr != nil {
+		return nil, getErr
 	}
-
-	tok, err := jwt.ParseWithClaims(*token, &tokenData, key)
-
-	if err != nil {
-		return nil, err
-	}
-	if !tok.Valid {
-		return nil, errors.New("invalid token")
-	}
-
-	dataBin, _ := json.Marshal(tokenData)
-
-	json.Unmarshal(dataBin, &returnData)
-
+	json.Unmarshal([]byte(userStr), &returnData)
 	return &returnData, nil
 }

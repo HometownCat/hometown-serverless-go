@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/google/uuid"
 	"hometown.com/hometown-serverless-go/handler"
 	"hometown.com/hometown-serverless-go/types"
 )
@@ -39,36 +40,21 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 
 	json.Unmarshal(userBin, &sendUserInfo)
 
-	// var tokenErr error
-	// var wg sync.WaitGroup
-
-	// wg.Add(2)
-
-	// go func(){
-	// 	accessToken, accessErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
-	// 	sendUserInfo.AccessToken = accessToken
-	// 	if accessErr != nil {
-	// 		tokenErr = accessErr
-	// 	}
-	// 	defer wg.Done()
-	// }()
-
-	// go func(){
-	// 	revokeToken, revokeErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
-	// 	sendUserInfo.RevokeToken = revokeToken
-	// 	if revokeErr != nil {
-	// 		tokenErr = revokeErr
-	// 	}
-	// 	defer wg.Done()
-	// }()
-
 	accessToken, tokenErr := handler.RedisTokenGenerator(&sendUserInfo)
-	sendUserInfo.AccessToken = accessToken
-	// wg.Wait()
+	revokeToken := uuid.NewString()
 
 	if tokenErr != nil {
 		return nil, tokenErr
 	}
+
+	redisErr := handler.SetUserToken(accessToken, &revokeToken, &sendUserInfo.Id)
+
+	if redisErr != nil {
+		return nil, redisErr
+	}
+
+	sendUserInfo.AccessToken = accessToken
+	sendUserInfo.RevokeToken = &revokeToken
 
 	return &sendUserInfo, nil
 }
