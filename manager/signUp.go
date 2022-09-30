@@ -15,13 +15,15 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 	hashPassword := sha256.Sum256([]byte(user.Password))
 	user.Password = hex.EncodeToString(hashPassword[:])
 
-	getUser, getUserErr := handler.GetUser(&user.Email, nil)
+	var userData types.SendUserInfo
+
+	getUserErr := handler.GetUser(&user.Email, nil, &userData)
 
 	if getUserErr != nil {
 		return nil, getUserErr
 	}
 
-	if getUser != nil {
+	if userData.Id != 0 {
 		return nil, errors.New("user aleady exist")
 	}
 

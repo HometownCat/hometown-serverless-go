@@ -40,7 +40,7 @@ func SignUp(user *types.User) error {
 	return conErr
 }
 
-func GetUser(email *string, password *string) (*types.SendUserInfo, error) {
+func GetUser(email *string, password *string, userData *types.SendUserInfo) error {
 	// db 처리 추가
 	var sendUserInfo []types.SendUserInfo
 	var passwordFailErr error
@@ -49,16 +49,19 @@ func GetUser(email *string, password *string) (*types.SendUserInfo, error) {
 		passwordFailErr = errors.New("password not matched")
 		strQuery += "AND `password` = \"" + *password + "\""
 	}
-	fmt.Println(strQuery)
+
 	conErr := database.SlaveDatabase.Select(&sendUserInfo, strQuery)
 	if conErr != nil {
-		return nil, conErr
+		return conErr
 	}
 	if len(sendUserInfo) <= 0 {
-		return nil, passwordFailErr
+		return passwordFailErr
 	}
+
 	returnUser := sendUserInfo[0]
-	return &returnUser, nil
+	userBin, _ := json.Marshal(returnUser)
+	json.Unmarshal(userBin, &userData)
+	return nil
 }
 
 func SetUserToken(accessToken *string, revokeToken *string, id *int64) error {
