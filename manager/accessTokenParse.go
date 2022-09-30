@@ -9,17 +9,17 @@ import (
 )
 
 func AccessTokenParse(token *string) (*types.SendUserInfo, error) {
-	
+
 	returnData := types.SendUserInfo{}
 	secretKey := os.Getenv("JWT_ACCESS_SECRET_KEY")
 	tokenData, parseErr := handler.TokenParser(token, &secretKey)
 	if parseErr != nil {
-		return  nil,parseErr
+		return nil, parseErr
 	}
-	
-	tokenBin,_ := json.Marshal(*tokenData)
 
-	json.Unmarshal(tokenBin,&returnData)
+	tokenBin, _ := json.Marshal(*tokenData)
+
+	json.Unmarshal(tokenBin, &returnData)
 	// returnData["id"] = tokenData.Id
 	// returnData["email"] = tokenData.Email
 	// returnData["username"] = tokenData.Username
@@ -27,5 +27,5 @@ func AccessTokenParse(token *string) (*types.SendUserInfo, error) {
 	// returnData["phoneNumber"] = tokenData.PhoneNumber
 	// returnData["profileImage"] = tokenData.ProfileImage
 
-	return &returnData,nil
+	return &returnData, nil
 }

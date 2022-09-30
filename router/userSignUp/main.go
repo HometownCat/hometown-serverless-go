@@ -9,52 +9,53 @@ import (
 	"hometown.com/hometown-serverless-go/controller"
 	"hometown.com/hometown-serverless-go/modules/common"
 	"hometown.com/hometown-serverless-go/modules/database"
+	"hometown.com/hometown-serverless-go/modules/redis"
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
+func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	params,requestErr := common.RequestValid(&event,&[]types.ValidKey{
+	params, requestErr := common.RequestValid(&event, &[]types.ValidKey{
 		{
-			Key: "email",
+			Key:     "email",
 			KeyType: "string",
 		},
 		{
-			Key: "password",
+			Key:     "password",
 			KeyType: "string",
 		},
 		{
-			Key: "username",
+			Key:     "username",
 			KeyType: "string",
 		},
 	})
-	
+
 	if requestErr != nil {
 		response, err := common.ResponseError(requestErr)
-		return *response,err
+		return *response, err
 	}
 
 	userData, err := controller.UserSignUp(params)
-	
+
 	if err != nil {
 		response, err := common.ResponseError(err)
-		return *response,err
+		return *response, err
 	}
 
 	responseData := types.ResponseData{
 		Message: "success",
-		Data: *userData,
+		Data:    *userData,
 	}
 
-	bin,jsonErr := json.Marshal(&responseData)
+	bin, jsonErr := json.Marshal(&responseData)
 
 	if jsonErr != nil {
 		response, err := common.ResponseError(jsonErr)
-		return *response,err
+		return *response, err
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body: string(bin),
+		Body:       string(bin),
 		StatusCode: 200,
 	}, nil
 }
@@ -64,6 +65,6 @@ func main() {
 
 	defer database.MasterDatabase.Close()
 	defer database.SlaveDatabase.Close()
-
+	defer redis.Close()
 	lambda.Start(Handler)
 }

@@ -8,10 +8,10 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-var Effect string;
+var Effect string
 
-func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.APIGatewayCustomAuthorizerResponse , error){
-	headers := event.Headers;
+func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.APIGatewayCustomAuthorizerResponse, error) {
+	headers := event.Headers
 	// queryStringParameters := event.QueryStringParameters;
 	// stageVariables := event.StageVariables;
 	// requestContext := event.RequestContext;
@@ -24,9 +24,8 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	// route := apiGatewayArnTmp[2];
 	principalId := os.Getenv("PRINCIPAL_ID")
 	if headers["x-api-key"] != os.Getenv("API_KEY") {
-		return *GenerateDeny(&principalId,&event.MethodArn) , nil
+		return *GenerateDeny(&principalId, &event.MethodArn), nil
 	}
-
 
 	// data["accesstoken"] = headers["accesstoken"]
 
@@ -35,24 +34,22 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	// 	userInfo, validErr := validation.UserValidation(&access)
 	// 	if validErr != nil {
 	// 		return *GenerateDeny(&principalId,&event.MethodArn) , nil
-	// 	} 
+	// 	}
 	// 	userBin,_ := json.Marshal(*userInfo)
 	// 	// 테스트 진행 필요
 	// 	event.StageVariables["userData"] = string(userBin)
 	// }
 
-
-
-	return *GenerateAllow(&principalId,&event.MethodArn), nil
+	return *GenerateAllow(&principalId, &event.MethodArn), nil
 }
 
 func GeneratePolicy(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
-	var AuthResponse events.APIGatewayCustomAuthorizerResponse;
+	var AuthResponse events.APIGatewayCustomAuthorizerResponse
 	AuthResponse.PrincipalID = *principalId
 	var PolicyDocument events.APIGatewayCustomAuthorizerPolicy
 
 	PolicyDocument.Version = "2012-10-17"
-	PolicyDocument.Statement = make([]events.IAMPolicyStatement,1)
+	PolicyDocument.Statement = make([]events.IAMPolicyStatement, 1)
 
 	var statementOne events.IAMPolicyStatement
 	statementOne.Action = make([]string, 1)
@@ -64,16 +61,16 @@ func GeneratePolicy(principalId *string, resource *string) *events.APIGatewayCus
 
 	AuthResponse.PolicyDocument = PolicyDocument
 	return &AuthResponse
-}	
+}
 
 func GenerateAllow(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
 	Effect = "Allow"
-	return GeneratePolicy(principalId,resource)
+	return GeneratePolicy(principalId, resource)
 }
 
 func GenerateDeny(principalId *string, resource *string) *events.APIGatewayCustomAuthorizerResponse {
 	Effect = "Deny"
-	return GeneratePolicy(principalId,resource)
+	return GeneratePolicy(principalId, resource)
 }
 
 func main() {

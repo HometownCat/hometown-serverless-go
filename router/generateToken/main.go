@@ -13,49 +13,49 @@ import (
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func Handler(ctx context.Context,event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
-	params,requestErr := common.RequestValid(&event,&[]types.ValidKey{
+func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	params, requestErr := common.RequestValid(&event, &[]types.ValidKey{
 		{
-			Key: "email",
+			Key:     "email",
 			KeyType: "string",
 		},
 		{
-			Key: "password",
+			Key:     "password",
 			KeyType: "string",
 		},
 	})
 
 	if requestErr != nil {
-		errRes,err := common.ResponseError(requestErr);
-		return *errRes,err
+		errRes, err := common.ResponseError(requestErr)
+		return *errRes, err
 	}
 
-	userData,tokenErr := controller.GenerateToken(params)
+	userData, tokenErr := controller.GenerateToken(params)
 
-	if tokenErr != nil{
-		errRes,err := common.ResponseError(tokenErr);
-		return *errRes,err
+	if tokenErr != nil {
+		errRes, err := common.ResponseError(tokenErr)
+		return *errRes, err
 	}
 
 	responseData := types.ResponseData{
 		Message: "success",
-		Data: *userData,
+		Data:    *userData,
 	}
-	bin,jsonErr := json.Marshal(responseData)
+	bin, jsonErr := json.Marshal(responseData)
 
 	if jsonErr != nil {
-		errRes,err := common.ResponseError(jsonErr)
-		return *errRes,err
+		errRes, err := common.ResponseError(jsonErr)
+		return *errRes, err
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body: string(bin),
+		Body:       string(bin),
 		StatusCode: 200,
 	}, nil
 
 }
 
-func main(){
+func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	defer database.MasterDatabase.Close()

@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	_ = godotenv.Load()
-	SlaveDatabase = DbConnecttion("SLAVE")
+	_              = godotenv.Load()
+	SlaveDatabase  = DbConnecttion("SLAVE")
 	MasterDatabase = DbConnecttion("MASTER")
 )
+
 type DbConfig struct {
 	MaxLifetime time.Duration
 	MaxIdletime time.Duration
@@ -38,6 +39,14 @@ var masterConfig *DbConfig = &DbConfig{
 	MaxIdleConn: 35,
 }
 
+func MysqlTables() *map[string]string {
+	return &map[string]string{
+		"user":         "user",
+		"userToken":    "auth",
+		"board":        "board",
+		"boardComment": "boardComment",
+	}
+}
 func DbConnecttion(env string) *sqlx.DB {
 	var config *DbConfig
 	switch env {
@@ -48,8 +57,8 @@ func DbConnecttion(env string) *sqlx.DB {
 	default:
 		config = slaveConfig
 	}
-	fmt.Println(os.Getenv("MYSQL_USER_" + env)+":"+os.Getenv("MYSQL_PASSWORD_" + env)+"@tcp("+os.Getenv("MYSQL_HOST_" + env)+")/"+os.Getenv("MYSQL_DATABASE_" + env)+"?charset=utf8mb4&parseTime=True")
-	db, dbErr := sqlx.Connect("mysql", os.Getenv("MYSQL_USER_" + env)+":"+os.Getenv("MYSQL_PASSWORD_" + env)+"@tcp("+os.Getenv("MYSQL_HOST_" + env)+")/"+os.Getenv("MYSQL_DATABASE_" + env)+"?charset=utf8mb4&parseTime=True")
+	fmt.Println(os.Getenv("MYSQL_USER_"+env) + ":" + os.Getenv("MYSQL_PASSWORD_"+env) + "@tcp(" + os.Getenv("MYSQL_HOST_"+env) + ")/" + os.Getenv("MYSQL_DATABASE_"+env) + "?charset=utf8mb4&parseTime=True")
+	db, dbErr := sqlx.Connect("mysql", os.Getenv("MYSQL_USER_"+env)+":"+os.Getenv("MYSQL_PASSWORD_"+env)+"@tcp("+os.Getenv("MYSQL_HOST_"+env)+")/"+os.Getenv("MYSQL_DATABASE_"+env)+"?charset=utf8mb4&parseTime=True")
 	if common.IsError(dbErr) {
 		fmt.Println(dbErr)
 		log.Panic(dbErr)

@@ -11,16 +11,16 @@ import (
 func UserSignUp(params *map[string]interface{}) (*types.SendUserInfo, error) {
 	var user types.User
 
-	paramsBin,_ := json.Marshal(params)
-	jsonErr := json.Unmarshal(paramsBin,&user)
+	paramsBin, _ := json.Marshal(params)
+	jsonErr := json.Unmarshal(paramsBin, &user)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}
-	sendUserInfo,err := manager.UserSignUp(&user)
+	sendUserInfo, err := manager.UserSignUp(&user)
 
 	if err != nil {
 		fmt.Println("here")
-		return nil,err
+		return nil, err
 	}
 	return sendUserInfo, nil
 }
