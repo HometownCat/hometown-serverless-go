@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -16,7 +14,7 @@ import (
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
 
-	requestValid := common.RequestValid(&event,&[]types.ValidKey{
+	params,requestErr := common.RequestValid(&event,&[]types.ValidKey{
 		{
 			Key: "email",
 			KeyType: "string",
@@ -31,21 +29,25 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		},
 	})
 	
-	if !requestValid {
-		response, err := common.ResponseError(errors.New("not avaliable request data [body]:[" + event.Body + "]"))
+	if requestErr != nil {
+		response, err := common.ResponseError(requestErr)
 		return *response,err
 	}
-	userData, err := controller.UserSignUp(&event)
+
+	userData, err := controller.UserSignUp(params)
+	
 	if err != nil {
 		response, err := common.ResponseError(err)
 		return *response,err
 	}
+
 	responseData := types.ResponseData{
 		Message: "success",
 		Data: *userData,
 	}
+
 	bin,jsonErr := json.Marshal(&responseData)
-	fmt.Println(responseData)
+
 	if jsonErr != nil {
 		response, err := common.ResponseError(jsonErr)
 		return *response,err

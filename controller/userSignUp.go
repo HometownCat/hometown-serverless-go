@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aws/aws-lambda-go/events"
 	"hometown.com/hometown-serverless-go/manager"
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func UserSignUp(event *events.APIGatewayProxyRequest) (*types.SendUserInfo, error) {
+func UserSignUp(params *map[string]interface{}) (*types.SendUserInfo, error) {
 	var user types.User
-	jsonErr := json.Unmarshal([]byte(event.Body),&user)
-	user.UserIp = event.RequestContext.Identity.SourceIP
+
+	paramsBin,_ := json.Marshal(params)
+	jsonErr := json.Unmarshal(paramsBin,&user)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}

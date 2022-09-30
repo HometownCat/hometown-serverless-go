@@ -41,7 +41,7 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 	}
 
 	json.Unmarshal(userBin,&sendUserInfo)
-	tokenData := types.TokenData{}
+
 	var tokenErr error
 	var wg sync.WaitGroup
 
@@ -49,7 +49,7 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 
 	go func(){
 		accessToken, accessErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
-		tokenData.AccessToken = *accessToken
+		sendUserInfo.AccessToken = accessToken
 		if accessErr != nil {
 			tokenErr = accessErr
 		}
@@ -58,7 +58,7 @@ func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
 	
 	go func(){
 		revokeToken, revokeErr := handler.TokenGenerator(&sendUserInfo,&JWT_ACCESS_SECRET_KEY,&JWT_ACCESS_AVALIABLE_TIME)
-		tokenData.RevokeToken = *revokeToken
+		sendUserInfo.RevokeToken = revokeToken
 		if revokeErr != nil {
 			tokenErr = revokeErr
 		}

@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go/v4"
@@ -16,14 +17,15 @@ func SignUp(user *types.User) error {
 	// db 처리 추가
 	strQuery := "INSERT INTO `user` SET username = \"" + user.Username +  "\", email = \"" + user.Email + "\", password = \"" + user.Password + "\", userIp = \"" + user.UserIp +"\", status = 0"
 	if user.Address != nil {
-		strQuery += ", address = " + *user.Address
+		strQuery += ", address = \"" + *user.Address + "\""
 	}
 	if user.PhoneNumber != nil {
-		strQuery += ", phoneNumber = " + *user.PhoneNumber
+		strQuery += ", phoneNumber = \"" + *user.PhoneNumber + "\""
 	}
 	if user.ProfileImage != nil {
-		strQuery += ", profileImage = " + *user.ProfileImage
+		strQuery += ", profileImage = \"" + *user.ProfileImage + "\""
 	}
+
 	result,conErr := database.MasterDatabase.Exec(strQuery)
 
 	if conErr == nil {
@@ -43,7 +45,8 @@ func GetUser(email *string , password *string) (*types.SendUserInfo, error){
 		passwordFailErr = errors.New("password not matched");
 		strQuery += "AND `password` = \"" + *password + "\""
 	}
-	conErr := database.MasterDatabase.Select(&sendUserInfo,strQuery)
+	fmt.Println(strQuery)
+	conErr := database.SlaveDatabase.Select(&sendUserInfo,strQuery)
 	if conErr != nil {
 		return nil,conErr
 	}

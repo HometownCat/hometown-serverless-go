@@ -14,7 +14,23 @@ import (
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
 
-	userData,tokenErr := controller.GenerateToken(&event)
+	params,requestErr := common.RequestValid(&event,&[]types.ValidKey{
+		{
+			Key: "email",
+			KeyType: "string",
+		},
+		{
+			Key: "password",
+			KeyType: "string",
+		},
+	})
+
+	if requestErr != nil {
+		errRes,err := common.ResponseError(requestErr);
+		return *errRes,err
+	}
+
+	userData,tokenErr := controller.GenerateToken(params)
 
 	if tokenErr != nil{
 		errRes,err := common.ResponseError(tokenErr);
