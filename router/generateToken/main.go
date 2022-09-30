@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"runtime"
 
@@ -12,8 +13,7 @@ import (
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
-
+func Handler(ctx context.Context,event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error){
 	params,requestErr := common.RequestValid(&event,&[]types.ValidKey{
 		{
 			Key: "email",
