@@ -3,7 +3,6 @@ package common
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"reflect"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -36,13 +35,10 @@ func ReturnNotNil(arg1 interface{}, arg2 interface{}) *interface{} {
 
 // }
 
-func isValidationKey (param *map[string]interface{} , key *string, keyType *string) bool {
+func isValidationKey(param *map[string]interface{} , key *string, keyType *string) bool {
 	var body map[string]interface{} = *param
 	validValue := body[*key]
 	
-	log.Println(reflect.TypeOf(validValue).String())
-	log.Println(*keyType)
-	log.Println(*key)
 	return reflect.TypeOf(validValue).String() == *keyType
 }
 
@@ -71,4 +67,12 @@ func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKe
 		return nil, errors.New("not matched : " + string(notMatchedBin))
 	}
 	return &param,nil
+}
+
+func IsExistKey(param map[string]string, key string) bool {
+
+	if _ ,exist := param[ key]; exist {
+		return true
+	}
+	return false
 }

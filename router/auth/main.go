@@ -1,14 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"hometown.com/hometown-serverless-go/modules/database"
-	"hometown.com/hometown-serverless-go/modules/validation"
 )
 
 var Effect string;
@@ -31,18 +28,20 @@ func Handler(event events.APIGatewayCustomAuthorizerRequestTypeRequest) (events.
 	}
 
 
-	accessToken := headers["accesstoken"];
+	// data["accesstoken"] = headers["accesstoken"]
 
-	userInfo, validErr := validation.UserValidation(&accessToken)
-	
+	// if common.IsExistKey(headers,"accesstoken") {
+	// 	var access string = headers["accesstoken"]
+	// 	userInfo, validErr := validation.UserValidation(&access)
+	// 	if validErr != nil {
+	// 		return *GenerateDeny(&principalId,&event.MethodArn) , nil
+	// 	} 
+	// 	userBin,_ := json.Marshal(*userInfo)
+	// 	// 테스트 진행 필요
+	// 	event.StageVariables["userData"] = string(userBin)
+	// }
 
-	if validErr != nil {
-		return *GenerateDeny(&principalId,&event.MethodArn) , nil
-	} else if userInfo != nil {
-		userBin,_ := json.Marshal(*userInfo)
-		// 테스트 진행 필요
-		event.StageVariables["userData"] = string(userBin)
-	}
+
 
 	return *GenerateAllow(&principalId,&event.MethodArn), nil
 }
@@ -80,8 +79,8 @@ func GenerateDeny(principalId *string, resource *string) *events.APIGatewayCusto
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	defer database.MasterDatabase.Close()
-	defer database.SlaveDatabase.Close()
+	// defer database.MasterDatabase.Close()
+	// defer database.SlaveDatabase.Close()
 
 	lambda.Start(Handler)
 }
