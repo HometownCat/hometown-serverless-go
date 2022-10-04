@@ -5,15 +5,15 @@ import (
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func UserValidation(token *string) (*types.SendUserInfo, error) {
-
+func UserValidation(token *string, userInfo *types.SendUserInfo) error {
 	if token == nil {
-		return nil, nil
-	}
-	userInfo, parseErr := manager.AccessTokenParse(token)
+		return nil
+	}	
+	sendUserInfo := types.SendUserInfo{}
+	parseErr := manager.AccessTokenParse(token,&sendUserInfo)
 
 	if parseErr != nil {
-		return nil, parseErr
+		return parseErr
 	}
-	return userInfo, nil
+	return nil
 }

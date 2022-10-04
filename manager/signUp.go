@@ -11,52 +11,43 @@ import (
 	"hometown.com/hometown-serverless-go/types"
 )
 
-func UserSignUp(user *types.User) (*types.SendUserInfo, error) {
+func UserSignUp(user *types.User, userInfo *types.SendUserInfo) error {
 	hashPassword := sha256.Sum256([]byte(user.Password))
 	user.Password = hex.EncodeToString(hashPassword[:])
 
-	var userData types.SendUserInfo
 
-	getUserErr := handler.GetUser(&user.Email, nil, &userData)
+	getUserErr := handler.GetUser(&user.Email, nil, userInfo)
 
 	if getUserErr != nil {
-		return nil, getUserErr
+		return getUserErr
 	}
-
-	if userData.Id != 0 {
-		return nil, errors.New("user aleady exist")
+	if userInfo.Id != 0 {
+		return errors.New("user aleady exist")
 	}
 
 	err := handler.SignUp(user)
+	
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var sendUserInfo types.SendUserInfo
+	userBin, _ := json.Marshal(*user)
 
-	userBin, jsonErr := json.Marshal(*user)
-
-	if jsonErr != nil {
-		return nil, err
-	}
-
-	json.Unmarshal(userBin, &sendUserInfo)
-
-	accessToken, tokenErr := handler.RedisTokenGenerator(&sendUserInfo)
+	json.Unmarshal(userBin, &userInfo)
+	tokenErr := handler.RedisTokenGenerator(userInfo)
 	revokeToken := uuid.NewString()
 
 	if tokenErr != nil {
-		return nil, tokenErr
+		return tokenErr
 	}
 
-	redisErr := handler.SetUserToken(accessToken, &revokeToken, &sendUserInfo.Id)
+	redisErr := handler.SetUserToken(userInfo.AccessToken, &revokeToken, &userInfo.Id)
 
 	if redisErr != nil {
-		return nil, redisErr
+		return redisErr
 	}
 
-	sendUserInfo.AccessToken = accessToken
-	sendUserInfo.RevokeToken = &revokeToken
+	userInfo.RevokeToken = &revokeToken
 
-	return &sendUserInfo, nil
+	return nil
 }

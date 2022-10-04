@@ -35,7 +35,9 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		return *response, err
 	}
 
-	userData, err := controller.UserSignUp(params)
+	var userInfo types.SendUserInfo
+
+	err := controller.UserSignUp(params, &userInfo)
 
 	if err != nil {
 		response, err := common.ResponseError(err)
@@ -44,7 +46,7 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 
 	responseData := types.ResponseData{
 		Message: "success",
-		Data:    *userData,
+		Data:    userInfo,
 	}
 
 	bin, jsonErr := json.Marshal(&responseData)

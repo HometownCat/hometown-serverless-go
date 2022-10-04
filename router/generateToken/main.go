@@ -29,8 +29,8 @@ func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		errRes, err := common.ResponseError(requestErr)
 		return *errRes, err
 	}
-
-	userData, tokenErr := controller.GenerateToken(params)
+	userInfo := types.SendUserInfo{}
+	tokenErr := controller.GenerateToken(params, &userInfo)
 
 	if tokenErr != nil {
 		errRes, err := common.ResponseError(tokenErr)
@@ -39,7 +39,7 @@ func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 
 	responseData := types.ResponseData{
 		Message: "success",
-		Data:    *userData,
+		Data:    userInfo,
 	}
 	bin, jsonErr := json.Marshal(responseData)
 

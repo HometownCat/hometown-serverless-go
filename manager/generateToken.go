@@ -15,14 +15,13 @@ import (
 
 // var JWT_REVOKE_AVALIABLE_TIME = time.Hour * 24 * 30
 
-func TokenGenerator(email *string, password *string) (*types.SendUserInfo, error) {
+func TokenGenerator(email *string, password *string, userInfo *types.SendUserInfo) error {
 	hashPassword := sha256.Sum256([]byte(*password))
 	*password = hex.EncodeToString(hashPassword[:])
-	var userData types.SendUserInfo
 
-	getUserErr := handler.GetUser(email, password, &userData)
+	getUserErr := handler.GetUser(email, password, userInfo)
 	if getUserErr != nil {
-		return nil, getUserErr
+		return getUserErr
 	}
 
 	// tokenData := types.TokenData{}
@@ -58,14 +57,11 @@ func TokenGenerator(email *string, password *string) (*types.SendUserInfo, error
 	// tokenBin, _ := json.Marshal(tokenData)
 
 	// json.Unmarshal(tokenBin, &userData)
-
-	token, tokenErr := handler.RedisTokenGenerator(&userData)
+	tokenErr := handler.RedisTokenGenerator(userInfo)
 
 	if tokenErr != nil {
-		return nil, tokenErr
+		return tokenErr
 	}
 
-	userData.AccessToken = token
-
-	return &userData, nil
+	return nil
 }

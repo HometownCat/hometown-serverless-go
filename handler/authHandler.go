@@ -78,18 +78,18 @@ func SetUserToken(accessToken *string, revokeToken *string, id *int64) error {
 	return conErr
 }
 
-func RedisTokenGenerator(user *types.SendUserInfo) (*string, error) {
+func RedisTokenGenerator(user *types.SendUserInfo, ) error {
 	userBin, _ := json.Marshal(*user)
 
 	expired := time.Hour * 24 * 30
 	token := uuid.NewString()
 	valueStr := string(userBin)
 	setErr := redis.SetData(&token, &valueStr, &expired)
-
 	if setErr != nil {
-		return nil, setErr
+		return setErr
 	}
-	return &token, nil
+	user.AccessToken = &token
+	return nil
 }
 
 func TokenGenerator(user *types.SendUserInfo, secretKey *string, avaliableTime *time.Duration) (*string, error) {
@@ -113,9 +113,8 @@ func TokenGenerator(user *types.SendUserInfo, secretKey *string, avaliableTime *
 	return &signedToken, nil
 }
 
-func TokenParser(token *string) (*types.SendUserInfo, error) {
+func TokenParser(token *string, userInfo *types.SendUserInfo) error {
 	// tokenData := types.AuthTokenData{}
-	returnData := types.SendUserInfo{}
 	// key := func(token *jwt.Token) (interface{}, error) {
 	// 	if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
 	// 		return nil, errors.New("unexpected signing method")
@@ -141,8 +140,8 @@ func TokenParser(token *string) (*types.SendUserInfo, error) {
 	userStr := fmt.Sprintf("%v", *userData)
 
 	if getErr != nil {
-		return nil, getErr
+		return getErr
 	}
-	json.Unmarshal([]byte(userStr), &returnData)
-	return &returnData, nil
+	json.Unmarshal([]byte(userStr), userInfo)
+	return nil
 }
