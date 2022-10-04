@@ -14,11 +14,14 @@ func IsError(err error) bool {
 	return err != nil
 }
 
-func ResponseError(err error) (*events.APIGatewayProxyResponse, error) {
-	return &events.APIGatewayProxyResponse{
+func ResponseError(err error, response *events.APIGatewayProxyResponse) error {
+
+	UnmarshalFromObject(&events.APIGatewayProxyResponse{
 		Body:       "{\"error\":\"" + err.Error() + "\"}",
 		StatusCode: 400,
-	}, nil
+	},response)
+
+	return nil
 }
 
 func ReturnNotNil(arg1 interface{}, arg2 interface{}) *interface{} {
@@ -42,7 +45,7 @@ func isValidationKey(param *map[string]interface{}, key *string, keyType *string
 	return reflect.TypeOf(validValue).String() == *keyType
 }
 
-func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKey) (*map[string]interface{}, error) {
+func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKey) (map[string]interface{}, error) {
 	result := true
 	notMatchedParam := map[string]interface{}{}
 	param := map[string]interface{}{}
@@ -66,13 +69,27 @@ func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKe
 		notMatchedBin, _ := json.Marshal(notMatchedParam)
 		return nil, errors.New("not matched : " + string(notMatchedBin))
 	}
-	return &param, nil
+	return param, nil
 }
 
 func IsExistKey(param map[string]string, key string) bool {
-
 	if _, exist := param[key]; exist {
 		return true
 	}
 	return false
+}
+
+func UnmarshalFromObject[T any, V any](obj1 *T, obj2 *V) error {
+	bin,marshalErr := json.Marshal(*obj1)
+	unmarshalErr := json.Unmarshal(bin,obj2)
+
+	if marshalErr != nil {
+		return marshalErr
+	}
+
+	if unmarshalErr != nil {
+		return unmarshalErr
+	}
+
+	return nil
 }

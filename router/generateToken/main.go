@@ -24,34 +24,35 @@ func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 			KeyType: "string",
 		},
 	})
-
+	var response events.APIGatewayProxyResponse
 	if requestErr != nil {
-		errRes, err := common.ResponseError(requestErr)
-		return *errRes, err
+		err := common.ResponseError(requestErr, &response)
+		return response, err
 	}
 	userInfo := types.SendUserInfo{}
-	tokenErr := controller.GenerateToken(params, &userInfo)
+	tokenErr := controller.GenerateToken(&params, &userInfo)
 
 	if tokenErr != nil {
-		errRes, err := common.ResponseError(tokenErr)
-		return *errRes, err
+		err := common.ResponseError(tokenErr, &response)
+		return response, err
 	}
 
 	responseData := types.ResponseData{
 		Message: "success",
 		Data:    userInfo,
 	}
+	
 	bin, jsonErr := json.Marshal(responseData)
 
 	if jsonErr != nil {
-		errRes, err := common.ResponseError(jsonErr)
-		return *errRes, err
+		err := common.ResponseError(jsonErr, &response)
+		return response, err
 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       string(bin),
-		StatusCode: 200,
-	}, nil
+	response.Body = string(bin)
+	response.StatusCode = 200
+	
+	return response, nil
 
 }
 

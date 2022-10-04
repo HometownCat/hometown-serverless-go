@@ -7,7 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"hometown.com/hometown-serverless-go/modules/common"
 )
+
 
 func GetNewS3() (*s3.S3, error) {
 	if AwsSession != nil {
@@ -20,44 +22,48 @@ func GetNewS3() (*s3.S3, error) {
 	return s3.New(sess), nil
 }
 
-func UploadObjectToS3(bucket *string, fileName *string, file *io.Reader) (*s3manager.UploadOutput, error) {
+func UploadObjectToS3(bucket *string, fileName *string, file *io.Reader, output *s3manager.UploadOutput) error {
 	var uploader *s3manager.Uploader
 	if AwsSession != nil {
 		uploader = s3manager.NewUploader(AwsSession)
 	} else {
 		sess, sessionErr := session.NewSessionWithOptions(SessionOption)
 		if sessionErr != nil {
-			return nil, sessionErr
+			return sessionErr
 		}
 		uploader = s3manager.NewUploader(sess)
 	}
-
-	output, uploadErr := uploader.Upload(&s3manager.UploadInput{
+	getOutput, uploadErr := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(*bucket),
 		Key:    aws.String(*fileName),
 		Body:   *file,
 	})
 
 	if uploadErr != nil {
-		return nil, uploadErr
+		return uploadErr
 	}
-	return output, nil
+	
+	common.UnmarshalFromObject(getOutput,output)
+
+	return nil
 }
 
-func DeleteObjectToS3(bucket *string, objectName *string) (*s3.DeleteObjectOutput, error) {
+func DeleteObjectToS3(bucket *string, objectName *string, output *s3.DeleteObjectOutput) error {
 	getS3, getErr := GetNewS3()
 	if getErr != nil {
-		return nil, getErr
+		return getErr
 	}
 
-	output, deleteErr := getS3.DeleteObject(&s3.DeleteObjectInput{
+	getOutput, deleteErr := getS3.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(*bucket),
 		Key:    aws.String(*objectName),
 	})
 
 	if deleteErr != nil {
-		return nil, deleteErr
+		return deleteErr
 	}
 
-	return output, nil
+	common.UnmarshalFromObject(getOutput,output)
+
+	return nil
 }

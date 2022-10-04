@@ -8,6 +8,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/google/uuid"
+	"hometown.com/hometown-serverless-go/modules/common"
 	"hometown.com/hometown-serverless-go/modules/database"
 	"hometown.com/hometown-serverless-go/modules/redis"
 	"hometown.com/hometown-serverless-go/types"
@@ -59,8 +60,11 @@ func GetUser(email *string, password *string, userData *types.SendUserInfo) erro
 	}
 
 	returnUser := sendUserInfo[0]
-	userBin, _ := json.Marshal(returnUser)
-	json.Unmarshal(userBin, &userData)
+	// userBin, _ := json.Marshal(returnUser)
+	// json.Unmarshal(userBin, &userData)
+
+	common.UnmarshalFromObject(&returnUser,userData)
+
 	return nil
 }
 

@@ -30,18 +30,20 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		},
 	})
 
+	var response events.APIGatewayProxyResponse
+
 	if requestErr != nil {
-		response, err := common.ResponseError(requestErr)
-		return *response, err
+		err := common.ResponseError(requestErr, &response)
+		return response, err
 	}
 
 	var userInfo types.SendUserInfo
 
-	err := controller.UserSignUp(params, &userInfo)
+	err := controller.UserSignUp(&params, &userInfo)
 
 	if err != nil {
-		response, err := common.ResponseError(err)
-		return *response, err
+		err := common.ResponseError(err, &response)
+		return response, err
 	}
 
 	responseData := types.ResponseData{
@@ -52,14 +54,14 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 	bin, jsonErr := json.Marshal(&responseData)
 
 	if jsonErr != nil {
-		response, err := common.ResponseError(jsonErr)
-		return *response, err
+		err := common.ResponseError(jsonErr, &response)
+		return response, err
 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       string(bin),
-		StatusCode: 200,
-	}, nil
+	response.Body = string(bin)
+	response.StatusCode = 200
+
+	return response, nil
 }
 
 func main() {
@@ -68,5 +70,6 @@ func main() {
 	defer database.MasterDatabase.Close()
 	defer database.SlaveDatabase.Close()
 	defer redis.Close()
+	
 	lambda.Start(Handler)
 }

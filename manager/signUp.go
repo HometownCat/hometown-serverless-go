@@ -3,11 +3,11 @@ package manager
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
 	"hometown.com/hometown-serverless-go/handler"
+	"hometown.com/hometown-serverless-go/modules/common"
 	"hometown.com/hometown-serverless-go/types"
 )
 
@@ -30,10 +30,9 @@ func UserSignUp(user *types.User, userInfo *types.SendUserInfo) error {
 	if err != nil {
 		return err
 	}
+	
+	common.UnmarshalFromObject(user,userInfo)
 
-	userBin, _ := json.Marshal(*user)
-
-	json.Unmarshal(userBin, &userInfo)
 	tokenErr := handler.RedisTokenGenerator(userInfo)
 	revokeToken := uuid.NewString()
 
