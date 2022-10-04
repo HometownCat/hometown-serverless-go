@@ -16,12 +16,16 @@ func IsError(err error) bool {
 
 func ResponseError(err error, response *events.APIGatewayProxyResponse) error {
 
-	UnmarshalFromObject(&events.APIGatewayProxyResponse{
+	jsonErr := UnmarshalFromObject(&events.APIGatewayProxyResponse{
 		Body:       "{\"error\":\"" + err.Error() + "\"}",
 		StatusCode: 400,
 	},response)
 
-	return nil
+	if err != nil {
+		return jsonErr
+	}
+
+	return err
 }
 
 func ReturnNotNil(arg1 interface{}, arg2 interface{}) *interface{} {
