@@ -11,6 +11,7 @@ require (
 	github.com/go-redis/redis/v9 v9.0.0-beta.2 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/grokify/go-awslambda v0.1.6 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect

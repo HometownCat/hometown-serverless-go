@@ -13,7 +13,7 @@ var AwsConfig aws.Config = aws.Config{
 
 var SessionOption session.Options = session.Options{
 	Config:  AwsConfig,
-	Profile: "hometown",
+	// Profile: "hometown",
 }
 
 var AwsSession *session.Session

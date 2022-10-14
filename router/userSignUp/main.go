@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -14,7 +15,7 @@ import (
 )
 
 func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-
+	fmt.Println(event.Body)
 	params, requestErr := common.RequestValid(&event, &[]types.ValidKey{
 		{
 			Key:     "email",

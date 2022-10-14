@@ -22,7 +22,7 @@ func GetNewS3() (*s3.S3, error) {
 	return s3.New(sess), nil
 }
 
-func UploadObjectToS3(bucket *string, fileName *string, file *io.Reader, output *s3manager.UploadOutput) error {
+func UploadObjectToS3(bucket string, fileName string, file io.Reader, output *s3manager.UploadOutput) error {
 	var uploader *s3manager.Uploader
 	if AwsSession != nil {
 		uploader = s3manager.NewUploader(AwsSession)
@@ -34,9 +34,9 @@ func UploadObjectToS3(bucket *string, fileName *string, file *io.Reader, output 
 		uploader = s3manager.NewUploader(sess)
 	}
 	getOutput, uploadErr := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(*bucket),
-		Key:    aws.String(*fileName),
-		Body:   *file,
+		Bucket: aws.String(bucket),
+		Key:    aws.String(fileName),
+		Body:   file,
 	})
 
 	if uploadErr != nil {
