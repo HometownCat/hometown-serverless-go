@@ -49,7 +49,7 @@ func isValidationKey(param *map[string]interface{}, key *string, keyType *string
 	return reflect.TypeOf(validValue).String() == *keyType
 }
 
-func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKey) (map[string]interface{}, error) {
+func RequestValid(event *events.APIGatewayProxyRequest, keyList []types.ValidKey) (map[string]interface{}, error) {
 	result := true
 	notMatchedParam := map[string]interface{}{}
 	param := map[string]interface{}{}
@@ -62,7 +62,7 @@ func RequestValid(event *events.APIGatewayProxyRequest, keyList *[]types.ValidKe
 	mergo.Merge(&param, event.QueryStringParameters)
 	mergo.Merge(&param, event.PathParameters)
 
-	for _, validKey := range *keyList {
+	for _, validKey := range keyList {
 		if !isValidationKey(&param, &validKey.Key, &validKey.KeyType) {
 			notMatchedParam[validKey.Key] = param[validKey.Key]
 			result = false

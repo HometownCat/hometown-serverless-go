@@ -14,7 +14,7 @@ import (
 )
 
 func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	params, requestErr := common.RequestValid(&event, &[]types.ValidKey{
+	params, requestErr := common.RequestValid(&event, []types.ValidKey{
 		{
 			Key:     "email",
 			KeyType: "string",

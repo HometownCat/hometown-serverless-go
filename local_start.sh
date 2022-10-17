@@ -1,6 +1,3 @@
 #!/bin/bash
 
-
-sam build
-
-sam local start-api
+sam build && sam local start-api

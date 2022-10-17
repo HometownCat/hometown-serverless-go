@@ -3,4 +3,6 @@
 
 sam build
 
-sam deploy
+#!/bin/bash
+
+sam build && sam deploy

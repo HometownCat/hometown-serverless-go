@@ -1,17 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"runtime"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/google/uuid"
-	"github.com/grokify/go-awslambda"
 	"hometown.com/hometown-serverless-go/modules/aws"
+	"hometown.com/hometown-serverless-go/modules/image"
 )
 
 // func parseForm(key, mpheader string, body io.Reader) (string, string, io.Reader, error) {
@@ -59,37 +56,23 @@ func Handler(event events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		Body: "",
 		StatusCode: 200,
 	}
-	r, err := awslambda.NewReaderMultipart(event)
-	if err != nil {
-		errBin,_ := json.Marshal(err)
-		res.Body = string(errBin)
-		return res, err
-	}
-
-	part, nexterr := r.NextPart()
-
-	if nexterr != nil {
-		errBin,_ := json.Marshal(nexterr)
-		res.Body = string(errBin)
-		return res, nexterr
-	}
-
-	content, ioErr := io.ReadAll(part)
-
-	if ioErr != nil {
-		errBin,_ := json.Marshal(ioErr)
-		res.Body = string(errBin)
-		return res, ioErr
-	}
-	imgName := uuid.NewString() + part.FileName()
+	byteReaderArr, imgNameArr, readErr := image.GetByteReaderByMultipart(&event)
 	var output s3manager.UploadOutput
-	awsErr := aws.UploadObjectToS3("hometown-user-bucket","profile/" + imgName,bytes.NewReader(content),&output)
 	
-	if awsErr != nil {
-		errBin,_ := json.Marshal(awsErr)
+	if readErr != nil && byteReaderArr == nil && imgNameArr == nil {
+		errBin,_ := json.Marshal(readErr)
 		res.Body = string(errBin)
-		return res, awsErr
+		return res, readErr
 	}
+
+	for i := 0; i < len(byteReaderArr); i++ {
+		awsErr := aws.UploadObjectToS3("hometown-user-bucket","profile/" + imgNameArr[i], byteReaderArr[i],&output)
+		if awsErr != nil {
+			errBin,_ := json.Marshal(awsErr)
+			res.Body = string(errBin)
+			return res, awsErr
+		}	
+	} 
 	
 	outputBin, _ := json.Marshal(output)
 	res.Body = string(outputBin)
